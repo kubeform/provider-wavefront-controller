@@ -63,6 +63,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
+var _provider = wavefront.Provider()
+
 var runningControllers = struct {
 	sync.RWMutex
 	mp map[schema.GroupVersionKind]bool
@@ -252,8 +254,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Alert"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_alert"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_alert"],
 			TypeName:         "wavefront_alert",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -270,8 +272,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Target"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_alert_target"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_alert_target"],
 			TypeName:         "wavefront_alert_target",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -288,8 +290,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAppDynamics"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_app_dynamics"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_app_dynamics"],
 			TypeName:         "wavefront_cloud_integration_app_dynamics",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -306,8 +308,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAwsExternalID"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_aws_external_id"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_aws_external_id"],
 			TypeName:         "wavefront_cloud_integration_aws_external_id",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -324,8 +326,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAzure"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_azure"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_azure"],
 			TypeName:         "wavefront_cloud_integration_azure",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -342,8 +344,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAzureActivityLog"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_azure_activity_log"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_azure_activity_log"],
 			TypeName:         "wavefront_cloud_integration_azure_activity_log",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -360,8 +362,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationCloudtrail"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_cloudtrail"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_cloudtrail"],
 			TypeName:         "wavefront_cloud_integration_cloudtrail",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -378,8 +380,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationCloudwatch"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_cloudwatch"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_cloudwatch"],
 			TypeName:         "wavefront_cloud_integration_cloudwatch",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -396,8 +398,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationEc2"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_ec2"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_ec2"],
 			TypeName:         "wavefront_cloud_integration_ec2",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -414,8 +416,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationGcp"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_gcp"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_gcp"],
 			TypeName:         "wavefront_cloud_integration_gcp",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -432,8 +434,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationGcpBilling"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_gcp_billing"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_gcp_billing"],
 			TypeName:         "wavefront_cloud_integration_gcp_billing",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -450,8 +452,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationNewrelic"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_newrelic"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_newrelic"],
 			TypeName:         "wavefront_cloud_integration_newrelic",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -468,8 +470,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationTesla"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_tesla"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_tesla"],
 			TypeName:         "wavefront_cloud_integration_tesla",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -486,8 +488,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Dashboard"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_dashboard"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_dashboard"],
 			TypeName:         "wavefront_dashboard",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -504,8 +506,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Json"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_dashboard_json"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_dashboard_json"],
 			TypeName:         "wavefront_dashboard_json",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -522,8 +524,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Metric"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_derived_metric"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_derived_metric"],
 			TypeName:         "wavefront_derived_metric",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -540,8 +542,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Link"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_external_link"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_external_link"],
 			TypeName:         "wavefront_external_link",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -558,8 +560,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Policy"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_ingestion_policy"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_ingestion_policy"],
 			TypeName:         "wavefront_ingestion_policy",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -576,8 +578,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Window"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_maintenance_window"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_maintenance_window"],
 			TypeName:         "wavefront_maintenance_window",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -594,8 +596,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Role"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_role"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_role"],
 			TypeName:         "wavefront_role",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -612,8 +614,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Account"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_service_account"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_service_account"],
 			TypeName:         "wavefront_service_account",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -630,8 +632,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("User"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_user"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_user"],
 			TypeName:         "wavefront_user",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
@@ -648,8 +650,8 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 			Log:              ctrl.Log.WithName("controllers").WithName("Group"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
-			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_user_group"],
+			Provider:         _provider,
+			Resource:         _provider.ResourcesMap["wavefront_user_group"],
 			TypeName:         "wavefront_user_group",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
