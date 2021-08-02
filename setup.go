@@ -27,8 +27,8 @@ import (
 	"sync"
 	"time"
 
-	wavefront "github.com/wavefront/terraform-provider-wavefront/wavefront"
 	"github.com/gobuffalo/flect"
+	wavefront "github.com/vmware/terraform-provider-wavefront/wavefront"
 	auditlib "go.bytebuilders.dev/audit/lib"
 	arv1 "k8s.io/api/admissionregistration/v1"
 	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -39,26 +39,26 @@ import (
 	admissionregistrationv1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
-	dnsv1alpha1 "kubeform.dev/provider-wavefront-api/apis/dns/v1alpha1"
-	firewallv1alpha1 "kubeform.dev/provider-wavefront-api/apis/firewall/v1alpha1"
-	instancev1alpha1 "kubeform.dev/provider-wavefront-api/apis/instance/v1alpha1"
-	kubernetesv1alpha1 "kubeform.dev/provider-wavefront-api/apis/kubernetes/v1alpha1"
-	loadbalancerv1alpha1 "kubeform.dev/provider-wavefront-api/apis/loadbalancer/v1alpha1"
-	networkv1alpha1 "kubeform.dev/provider-wavefront-api/apis/network/v1alpha1"
-	snapshotv1alpha1 "kubeform.dev/provider-wavefront-api/apis/snapshot/v1alpha1"
-	sshv1alpha1 "kubeform.dev/provider-wavefront-api/apis/ssh/v1alpha1"
-	templatev1alpha1 "kubeform.dev/provider-wavefront-api/apis/template/v1alpha1"
-	volumev1alpha1 "kubeform.dev/provider-wavefront-api/apis/volume/v1alpha1"
-	controllersdns "kubeform.dev/provider-wavefront-controller/controllers/dns"
-	controllersfirewall "kubeform.dev/provider-wavefront-controller/controllers/firewall"
-	controllersinstance "kubeform.dev/provider-wavefront-controller/controllers/instance"
-	controllerskubernetes "kubeform.dev/provider-wavefront-controller/controllers/kubernetes"
-	controllersloadbalancer "kubeform.dev/provider-wavefront-controller/controllers/loadbalancer"
-	controllersnetwork "kubeform.dev/provider-wavefront-controller/controllers/network"
-	controllerssnapshot "kubeform.dev/provider-wavefront-controller/controllers/snapshot"
-	controllersssh "kubeform.dev/provider-wavefront-controller/controllers/ssh"
-	controllerstemplate "kubeform.dev/provider-wavefront-controller/controllers/template"
-	controllersvolume "kubeform.dev/provider-wavefront-controller/controllers/volume"
+	alertv1alpha1 "kubeform.dev/provider-wavefront-api/apis/alert/v1alpha1"
+	cloudv1alpha1 "kubeform.dev/provider-wavefront-api/apis/cloud/v1alpha1"
+	dashboardv1alpha1 "kubeform.dev/provider-wavefront-api/apis/dashboard/v1alpha1"
+	derivedv1alpha1 "kubeform.dev/provider-wavefront-api/apis/derived/v1alpha1"
+	externalv1alpha1 "kubeform.dev/provider-wavefront-api/apis/external/v1alpha1"
+	ingestionv1alpha1 "kubeform.dev/provider-wavefront-api/apis/ingestion/v1alpha1"
+	maintenancev1alpha1 "kubeform.dev/provider-wavefront-api/apis/maintenance/v1alpha1"
+	rolev1alpha1 "kubeform.dev/provider-wavefront-api/apis/role/v1alpha1"
+	servicev1alpha1 "kubeform.dev/provider-wavefront-api/apis/service/v1alpha1"
+	userv1alpha1 "kubeform.dev/provider-wavefront-api/apis/user/v1alpha1"
+	controllersalert "kubeform.dev/provider-wavefront-controller/controllers/alert"
+	controllerscloud "kubeform.dev/provider-wavefront-controller/controllers/cloud"
+	controllersdashboard "kubeform.dev/provider-wavefront-controller/controllers/dashboard"
+	controllersderived "kubeform.dev/provider-wavefront-controller/controllers/derived"
+	controllersexternal "kubeform.dev/provider-wavefront-controller/controllers/external"
+	controllersingestion "kubeform.dev/provider-wavefront-controller/controllers/ingestion"
+	controllersmaintenance "kubeform.dev/provider-wavefront-controller/controllers/maintenance"
+	controllersrole "kubeform.dev/provider-wavefront-controller/controllers/role"
+	controllersservice "kubeform.dev/provider-wavefront-controller/controllers/service"
+	controllersuser "kubeform.dev/provider-wavefront-controller/controllers/user"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -243,255 +243,417 @@ func updateVWC(vwcClient *admissionregistrationv1.AdmissionregistrationV1Client,
 func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVersionKind, auditor *auditlib.EventPublisher, watchOnlyDefault bool) error {
 	switch gvk {
 	case schema.GroupVersionKind{
-		Group:   "dns.wavefront.kubeform.com",
+		Group:   "alert.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "DomainName",
+		Kind:    "Alert",
 	}:
-		if err := (&controllersdns.DomainNameReconciler{
+		if err := (&controllersalert.AlertReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("DomainName"),
+			Log:              ctrl.Log.WithName("controllers").WithName("Alert"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_dns_domain_name"],
-			TypeName:         "wavefront_dns_domain_name",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_alert"],
+			TypeName:         "wavefront_alert",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "DomainName")
+			setupLog.Error(err, "unable to create controller", "controller", "Alert")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "dns.wavefront.kubeform.com",
+		Group:   "alert.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "DomainRecord",
+		Kind:    "Target",
 	}:
-		if err := (&controllersdns.DomainRecordReconciler{
+		if err := (&controllersalert.TargetReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("DomainRecord"),
+			Log:              ctrl.Log.WithName("controllers").WithName("Target"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_dns_domain_record"],
-			TypeName:         "wavefront_dns_domain_record",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_alert_target"],
+			TypeName:         "wavefront_alert_target",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "DomainRecord")
+			setupLog.Error(err, "unable to create controller", "controller", "Target")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "firewall.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Firewall",
+		Kind:    "IntegrationAppDynamics",
 	}:
-		if err := (&controllersfirewall.FirewallReconciler{
+		if err := (&controllerscloud.IntegrationAppDynamicsReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Firewall"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAppDynamics"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_firewall"],
-			TypeName:         "wavefront_firewall",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_app_dynamics"],
+			TypeName:         "wavefront_cloud_integration_app_dynamics",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Firewall")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationAppDynamics")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "firewall.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Rule",
+		Kind:    "IntegrationAwsExternalID",
 	}:
-		if err := (&controllersfirewall.RuleReconciler{
+		if err := (&controllerscloud.IntegrationAwsExternalIDReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Rule"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAwsExternalID"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_firewall_rule"],
-			TypeName:         "wavefront_firewall_rule",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_aws_external_id"],
+			TypeName:         "wavefront_cloud_integration_aws_external_id",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Rule")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationAwsExternalID")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "instance.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Instance",
+		Kind:    "IntegrationAzure",
 	}:
-		if err := (&controllersinstance.InstanceReconciler{
+		if err := (&controllerscloud.IntegrationAzureReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Instance"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAzure"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_instance"],
-			TypeName:         "wavefront_instance",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_azure"],
+			TypeName:         "wavefront_cloud_integration_azure",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Instance")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationAzure")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "kubernetes.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Cluster",
+		Kind:    "IntegrationAzureActivityLog",
 	}:
-		if err := (&controllerskubernetes.ClusterReconciler{
+		if err := (&controllerscloud.IntegrationAzureActivityLogReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Cluster"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAzureActivityLog"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_kubernetes_cluster"],
-			TypeName:         "wavefront_kubernetes_cluster",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_azure_activity_log"],
+			TypeName:         "wavefront_cloud_integration_azure_activity_log",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Cluster")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationAzureActivityLog")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "kubernetes.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "NodePool",
+		Kind:    "IntegrationCloudtrail",
 	}:
-		if err := (&controllerskubernetes.NodePoolReconciler{
+		if err := (&controllerscloud.IntegrationCloudtrailReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("NodePool"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationCloudtrail"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_kubernetes_node_pool"],
-			TypeName:         "wavefront_kubernetes_node_pool",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_cloudtrail"],
+			TypeName:         "wavefront_cloud_integration_cloudtrail",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "NodePool")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationCloudtrail")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "loadbalancer.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Loadbalancer",
+		Kind:    "IntegrationCloudwatch",
 	}:
-		if err := (&controllersloadbalancer.LoadbalancerReconciler{
+		if err := (&controllerscloud.IntegrationCloudwatchReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Loadbalancer"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationCloudwatch"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_loadbalancer"],
-			TypeName:         "wavefront_loadbalancer",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_cloudwatch"],
+			TypeName:         "wavefront_cloud_integration_cloudwatch",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Loadbalancer")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationCloudwatch")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "network.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Network",
+		Kind:    "IntegrationEc2",
 	}:
-		if err := (&controllersnetwork.NetworkReconciler{
+		if err := (&controllerscloud.IntegrationEc2Reconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Network"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationEc2"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_network"],
-			TypeName:         "wavefront_network",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_ec2"],
+			TypeName:         "wavefront_cloud_integration_ec2",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Network")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationEc2")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "snapshot.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Snapshot",
+		Kind:    "IntegrationGcp",
 	}:
-		if err := (&controllerssnapshot.SnapshotReconciler{
+		if err := (&controllerscloud.IntegrationGcpReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Snapshot"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationGcp"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_snapshot"],
-			TypeName:         "wavefront_snapshot",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_gcp"],
+			TypeName:         "wavefront_cloud_integration_gcp",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Snapshot")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationGcp")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "ssh.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Key",
+		Kind:    "IntegrationGcpBilling",
 	}:
-		if err := (&controllersssh.KeyReconciler{
+		if err := (&controllerscloud.IntegrationGcpBillingReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Key"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationGcpBilling"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_ssh_key"],
-			TypeName:         "wavefront_ssh_key",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_gcp_billing"],
+			TypeName:         "wavefront_cloud_integration_gcp_billing",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Key")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationGcpBilling")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "template.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Template",
+		Kind:    "IntegrationNewrelic",
 	}:
-		if err := (&controllerstemplate.TemplateReconciler{
+		if err := (&controllerscloud.IntegrationNewrelicReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Template"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationNewrelic"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_template"],
-			TypeName:         "wavefront_template",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_newrelic"],
+			TypeName:         "wavefront_cloud_integration_newrelic",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Template")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationNewrelic")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "volume.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Volume",
+		Kind:    "IntegrationTesla",
 	}:
-		if err := (&controllersvolume.VolumeReconciler{
+		if err := (&controllerscloud.IntegrationTeslaReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Volume"),
+			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationTesla"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_volume"],
-			TypeName:         "wavefront_volume",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_cloud_integration_tesla"],
+			TypeName:         "wavefront_cloud_integration_tesla",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Volume")
+			setupLog.Error(err, "unable to create controller", "controller", "IntegrationTesla")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "volume.wavefront.kubeform.com",
+		Group:   "dashboard.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Attachment",
+		Kind:    "Dashboard",
 	}:
-		if err := (&controllersvolume.AttachmentReconciler{
+		if err := (&controllersdashboard.DashboardReconciler{
 			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Attachment"),
+			Log:              ctrl.Log.WithName("controllers").WithName("Dashboard"),
 			Scheme:           mgr.GetScheme(),
 			Gvk:              gvk,
 			Provider:         wavefront.Provider(),
-			Resource:         wavefront.Provider().ResourcesMap["wavefront_volume_attachment"],
-			TypeName:         "wavefront_volume_attachment",
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_dashboard"],
+			TypeName:         "wavefront_dashboard",
 			WatchOnlyDefault: watchOnlyDefault,
 		}).SetupWithManager(ctx, mgr, auditor); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Attachment")
+			setupLog.Error(err, "unable to create controller", "controller", "Dashboard")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "dashboard.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Json",
+	}:
+		if err := (&controllersdashboard.JsonReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("Json"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_dashboard_json"],
+			TypeName:         "wavefront_dashboard_json",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Json")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "derived.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Metric",
+	}:
+		if err := (&controllersderived.MetricReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("Metric"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_derived_metric"],
+			TypeName:         "wavefront_derived_metric",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Metric")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "external.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Link",
+	}:
+		if err := (&controllersexternal.LinkReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("Link"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_external_link"],
+			TypeName:         "wavefront_external_link",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Link")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "ingestion.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Policy",
+	}:
+		if err := (&controllersingestion.PolicyReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("Policy"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_ingestion_policy"],
+			TypeName:         "wavefront_ingestion_policy",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Policy")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "maintenance.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Window",
+	}:
+		if err := (&controllersmaintenance.WindowReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("Window"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_maintenance_window"],
+			TypeName:         "wavefront_maintenance_window",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Window")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "role.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Role",
+	}:
+		if err := (&controllersrole.RoleReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("Role"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_role"],
+			TypeName:         "wavefront_role",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Role")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "service.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Account",
+	}:
+		if err := (&controllersservice.AccountReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("Account"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_service_account"],
+			TypeName:         "wavefront_service_account",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Account")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "user.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "User",
+	}:
+		if err := (&controllersuser.UserReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("User"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_user"],
+			TypeName:         "wavefront_user",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "User")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "user.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Group",
+	}:
+		if err := (&controllersuser.GroupReconciler{
+			Client:           mgr.GetClient(),
+			Log:              ctrl.Log.WithName("controllers").WithName("Group"),
+			Scheme:           mgr.GetScheme(),
+			Gvk:              gvk,
+			Provider:         wavefront.Provider(),
+			Resource:         wavefront.Provider().ResourcesMap["wavefront_user_group"],
+			TypeName:         "wavefront_user_group",
+			WatchOnlyDefault: watchOnlyDefault,
+		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "Group")
 			return err
 		}
 
@@ -505,129 +667,210 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 func SetupWebhook(mgr manager.Manager, gvk schema.GroupVersionKind) error {
 	switch gvk {
 	case schema.GroupVersionKind{
-		Group:   "dns.wavefront.kubeform.com",
+		Group:   "alert.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "DomainName",
+		Kind:    "Alert",
 	}:
-		if err := (&dnsv1alpha1.DomainName{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "DomainName")
+		if err := (&alertv1alpha1.Alert{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Alert")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "dns.wavefront.kubeform.com",
+		Group:   "alert.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "DomainRecord",
+		Kind:    "Target",
 	}:
-		if err := (&dnsv1alpha1.DomainRecord{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "DomainRecord")
+		if err := (&alertv1alpha1.Target{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Target")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "firewall.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Firewall",
+		Kind:    "IntegrationAppDynamics",
 	}:
-		if err := (&firewallv1alpha1.Firewall{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Firewall")
+		if err := (&cloudv1alpha1.IntegrationAppDynamics{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationAppDynamics")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "firewall.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Rule",
+		Kind:    "IntegrationAwsExternalID",
 	}:
-		if err := (&firewallv1alpha1.Rule{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Rule")
+		if err := (&cloudv1alpha1.IntegrationAwsExternalID{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationAwsExternalID")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "instance.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Instance",
+		Kind:    "IntegrationAzure",
 	}:
-		if err := (&instancev1alpha1.Instance{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Instance")
+		if err := (&cloudv1alpha1.IntegrationAzure{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationAzure")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "kubernetes.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Cluster",
+		Kind:    "IntegrationAzureActivityLog",
 	}:
-		if err := (&kubernetesv1alpha1.Cluster{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Cluster")
+		if err := (&cloudv1alpha1.IntegrationAzureActivityLog{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationAzureActivityLog")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "kubernetes.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "NodePool",
+		Kind:    "IntegrationCloudtrail",
 	}:
-		if err := (&kubernetesv1alpha1.NodePool{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "NodePool")
+		if err := (&cloudv1alpha1.IntegrationCloudtrail{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationCloudtrail")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "loadbalancer.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Loadbalancer",
+		Kind:    "IntegrationCloudwatch",
 	}:
-		if err := (&loadbalancerv1alpha1.Loadbalancer{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Loadbalancer")
+		if err := (&cloudv1alpha1.IntegrationCloudwatch{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationCloudwatch")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "network.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Network",
+		Kind:    "IntegrationEc2",
 	}:
-		if err := (&networkv1alpha1.Network{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Network")
+		if err := (&cloudv1alpha1.IntegrationEc2{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationEc2")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "snapshot.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Snapshot",
+		Kind:    "IntegrationGcp",
 	}:
-		if err := (&snapshotv1alpha1.Snapshot{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Snapshot")
+		if err := (&cloudv1alpha1.IntegrationGcp{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationGcp")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "ssh.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Key",
+		Kind:    "IntegrationGcpBilling",
 	}:
-		if err := (&sshv1alpha1.Key{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Key")
+		if err := (&cloudv1alpha1.IntegrationGcpBilling{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationGcpBilling")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "template.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Template",
+		Kind:    "IntegrationNewrelic",
 	}:
-		if err := (&templatev1alpha1.Template{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Template")
+		if err := (&cloudv1alpha1.IntegrationNewrelic{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationNewrelic")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "volume.wavefront.kubeform.com",
+		Group:   "cloud.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Volume",
+		Kind:    "IntegrationTesla",
 	}:
-		if err := (&volumev1alpha1.Volume{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Volume")
+		if err := (&cloudv1alpha1.IntegrationTesla{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IntegrationTesla")
 			return err
 		}
 	case schema.GroupVersionKind{
-		Group:   "volume.wavefront.kubeform.com",
+		Group:   "dashboard.wavefront.kubeform.com",
 		Version: "v1alpha1",
-		Kind:    "Attachment",
+		Kind:    "Dashboard",
 	}:
-		if err := (&volumev1alpha1.Attachment{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Attachment")
+		if err := (&dashboardv1alpha1.Dashboard{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Dashboard")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "dashboard.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Json",
+	}:
+		if err := (&dashboardv1alpha1.Json{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Json")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "derived.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Metric",
+	}:
+		if err := (&derivedv1alpha1.Metric{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Metric")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "external.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Link",
+	}:
+		if err := (&externalv1alpha1.Link{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Link")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "ingestion.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Policy",
+	}:
+		if err := (&ingestionv1alpha1.Policy{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Policy")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "maintenance.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Window",
+	}:
+		if err := (&maintenancev1alpha1.Window{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Window")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "role.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Role",
+	}:
+		if err := (&rolev1alpha1.Role{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Role")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "service.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Account",
+	}:
+		if err := (&servicev1alpha1.Account{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Account")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "user.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "User",
+	}:
+		if err := (&userv1alpha1.User{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "User")
+			return err
+		}
+	case schema.GroupVersionKind{
+		Group:   "user.wavefront.kubeform.com",
+		Version: "v1alpha1",
+		Kind:    "Group",
+	}:
+		if err := (&userv1alpha1.Group{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Group")
 			return err
 		}
 
