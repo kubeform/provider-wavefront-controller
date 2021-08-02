@@ -3,7 +3,6 @@ module kubeform.dev/provider-wavefront-controller
 go 1.16
 
 require (
-	github.com/vmware/terraform-provider-wavefront v0.0.0-20210610195536-769fabacff12
 	github.com/fatih/structs v1.1.0
 	github.com/go-logr/logr v0.4.0
 	github.com/gobuffalo/flect v0.2.3
@@ -14,6 +13,7 @@ require (
 	github.com/json-iterator/go v1.1.11
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.1.3
+	github.com/vmware/terraform-provider-wavefront v0.0.0-20210610195536-769fabacff12
 	go.bytebuilders.dev/audit v0.0.7
 	go.bytebuilders.dev/license-verifier v0.9.2
 	go.bytebuilders.dev/license-verifier/kubernetes v0.9.2
@@ -26,7 +26,7 @@ require (
 	k8s.io/klog/v2 v2.8.0
 	kmodules.xyz/client-go v0.0.0-20210617233340-13d22e91512b
 	kubeform.dev/apimachinery v0.0.0-20210629153539-7bcd34a30eb5
-	kubeform.dev/provider-wavefront-api v0.0.0-20210730063217-591009e2877c
+	kubeform.dev/provider-wavefront-api v0.0.0-20210802084415-9a2c62c3aa77
 	sigs.k8s.io/cli-utils v0.25.0
 	sigs.k8s.io/controller-runtime v0.9.0
 )
