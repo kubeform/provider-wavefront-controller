@@ -3,7 +3,7 @@
 
 # provider-wavefront-controller
 
-Kubeform controller for [Terraform Wavefront Provider](https://github.com/wavefront/terraform-provider-wavefront)
+Kubeform controller for [Terraform Wavefront Provider](https://github.com/vmware/terraform-provider-wavefront)
 
 ## Installation
 
