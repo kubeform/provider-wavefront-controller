@@ -60,9 +60,6 @@ github.com/fatih/structs
 github.com/form3tech-oss/jwt-go
 # github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
-# github.com/go-errors/errors v1.0.1
-## explicit
-github.com/go-errors/errors
 # github.com/go-logr/logr v0.4.0
 ## explicit
 github.com/go-logr/logr
@@ -804,10 +801,11 @@ kmodules.xyz/resource-metadata/hub
 kmodules.xyz/resource-metadata/hub/resourceclasses
 kmodules.xyz/resource-metadata/hub/resourcedescriptors
 kmodules.xyz/resource-metadata/pkg/graph
-# kubeform.dev/apimachinery v0.0.0-20210629153539-7bcd34a30eb5
+# kubeform.dev/apimachinery v0.0.0-20210824104859-ba5604d5a1cc
 ## explicit
 kubeform.dev/apimachinery/api/v1alpha1
-# kubeform.dev/provider-wavefront-api v0.3.1-0.20210824080010-5fac1bdd04eb
+kubeform.dev/apimachinery/pkg/util
+# kubeform.dev/provider-wavefront-api v0.3.1-0.20210824200656-d8174f2eee82
 ## explicit
 kubeform.dev/provider-wavefront-api/api/provider
 kubeform.dev/provider-wavefront-api/apis/alert
@@ -831,7 +829,6 @@ kubeform.dev/provider-wavefront-api/apis/service/v1alpha1
 kubeform.dev/provider-wavefront-api/apis/user
 kubeform.dev/provider-wavefront-api/apis/user/v1alpha1
 kubeform.dev/provider-wavefront-api/client/clientset/versioned/scheme
-kubeform.dev/provider-wavefront-api/util
 # sigs.k8s.io/cli-utils v0.25.0
 ## explicit
 sigs.k8s.io/cli-utils/pkg/kstatus/status

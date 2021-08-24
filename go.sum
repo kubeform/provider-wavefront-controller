@@ -193,7 +193,6 @@ github.com/gabriel-vasile/mimetype v1.2.0/go.mod h1:6CDPel/o/3/s4+bp6kIbsWATq8pm
 github.com/garyburd/redigo v0.0.0-20150301180006-535138d7bcd7/go.mod h1:NR3MbYisc3/PwhQ00EMzDiPmrwpPxAn5GI05/YaO1SY=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gliderlabs/ssh v0.2.2/go.mod h1:U7qILu1NlMHj9FlMhZLlkCdDnU1DBEAqr0aevW3Awn0=
-github.com/go-errors/errors v1.0.1 h1:LUHzmkK3GUKUrL/1gfBUxAHzcev3apQlezX/+O7ma6w=
 github.com/go-errors/errors v1.0.1/go.mod h1:f4zRHt4oKfwPJE5k8C9vpYG+aDHdBFUsgrm6/TyX73Q=
 github.com/go-git/gcfg v1.5.0/go.mod h1:5m20vg6GwYabIxaOonVkTdrILxQMpEShl1xiMF4ua+E=
 github.com/go-git/go-billy/v5 v5.0.0/go.mod h1:pmpqyWchKfYfrkb/UVH4otLvyi/5gJlGI4Hb3ZqZ3W0=
@@ -1062,10 +1061,10 @@ kmodules.xyz/monitoring-agent-api v0.0.0-20210618005119-a8c212adc2bf/go.mod h1:Q
 kmodules.xyz/offshoot-api v0.0.0-20210618005544-5217a24765da/go.mod h1:3LECbAL3FgbyK80NP3V3Pmiuo/a3hFWg/PR6SPFhTns=
 kmodules.xyz/resource-metadata v0.5.7 h1:5xjq5pEp5hZK+jdkY/4wGk/FMtTyvQ9LlErh7lQC1m4=
 kmodules.xyz/resource-metadata v0.5.7/go.mod h1:Jdi7zBXRwwFTOR0CxwKxqJhsDVIilhrgNipPjnKLyrs=
-kubeform.dev/apimachinery v0.0.0-20210629153539-7bcd34a30eb5 h1:kpCzsugm64OMYV9ywBIOXbGN7z5ifK+rnGln+f3Gct4=
-kubeform.dev/apimachinery v0.0.0-20210629153539-7bcd34a30eb5/go.mod h1:kfiYdu87pCcrydTGaLXs4QMFx1fLNP5Yov2KxgrkCm0=
-kubeform.dev/provider-wavefront-api v0.3.1-0.20210824080010-5fac1bdd04eb h1:tUgMF6iUdnlmFskExh1/thVCW4vIKEsII3uZYjTgTQk=
-kubeform.dev/provider-wavefront-api v0.3.1-0.20210824080010-5fac1bdd04eb/go.mod h1:vvgmOfc9EFIs93Je7IB65tgJlA72cFqJFeUWOjo2ZP4=
+kubeform.dev/apimachinery v0.0.0-20210824104859-ba5604d5a1cc h1:YfOjHKKQWrKvmkqtLNoN6mNud5Mw7lkGb7SmLS216jc=
+kubeform.dev/apimachinery v0.0.0-20210824104859-ba5604d5a1cc/go.mod h1:v2f/23RmX0K45i0qdPyWaOvzElhXQPMW84JDFEH5kw8=
+kubeform.dev/provider-wavefront-api v0.3.1-0.20210824200656-d8174f2eee82 h1:NELL4V4rQH9UYOXyRnT9Th77BpfwLkdSRxwzIPPhBzU=
+kubeform.dev/provider-wavefront-api v0.3.1-0.20210824200656-d8174f2eee82/go.mod h1:zVsDB6BXe6/8qXR6S7zfbTXuAmENH0/wCjcsavwl9GY=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.15/go.mod h1:LEScyzhFmoF5pso/YSeBstl57mOzx9xlU9n85RGrDQg=
