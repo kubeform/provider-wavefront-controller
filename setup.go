@@ -70,7 +70,7 @@ var runningControllers = struct {
 	mp map[schema.GroupVersionKind]bool
 }{mp: make(map[schema.GroupVersionKind]bool)}
 
-func watchCRD(ctx context.Context, crdClient *clientset.Clientset, vwcClient *admissionregistrationv1.AdmissionregistrationV1Client, stopCh <-chan struct{}, mgr manager.Manager, auditor *auditlib.EventPublisher, watchOnlyDefault bool) error {
+func watchCRD(ctx context.Context, crdClient *clientset.Clientset, vwcClient *admissionregistrationv1.AdmissionregistrationV1Client, stopCh <-chan struct{}, mgr manager.Manager, auditor *auditlib.EventPublisher, restrictToNamespace string) error {
 	informerFactory := informers.NewSharedInformerFactory(crdClient, time.Second*30)
 	i := informerFactory.Apiextensions().V1().CustomResourceDefinitions().Informer()
 	l := informerFactory.Apiextensions().V1().CustomResourceDefinitions().Lister()
@@ -136,7 +136,7 @@ func watchCRD(ctx context.Context, crdClient *clientset.Clientset, vwcClient *ad
 						}
 					}
 
-					err = SetupManager(ctx, mgr, gvk, auditor, watchOnlyDefault)
+					err = SetupManager(ctx, mgr, gvk, auditor, restrictToNamespace)
 					if err != nil {
 						setupLog.Error(err, "unable to start manager")
 						os.Exit(1)
@@ -195,6 +195,7 @@ func updateVWC(vwcClient *admissionregistrationv1.AdmissionregistrationV1Client,
 		{
 			Operations: []arv1.OperationType{
 				arv1.Delete,
+				arv1.Update,
 			},
 			Rule: arv1.Rule{
 				APIGroups:   []string{strings.ToLower(gvk.Group)},
@@ -242,7 +243,7 @@ func updateVWC(vwcClient *admissionregistrationv1.AdmissionregistrationV1Client,
 	return nil
 }
 
-func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVersionKind, auditor *auditlib.EventPublisher, watchOnlyDefault bool) error {
+func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVersionKind, auditor *auditlib.EventPublisher, restrictToNamespace string) error {
 	switch gvk {
 	case schema.GroupVersionKind{
 		Group:   "alert.wavefront.kubeform.com",
@@ -250,15 +251,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Alert",
 	}:
 		if err := (&controllersalert.AlertReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Alert"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_alert"],
-			TypeName:         "wavefront_alert",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Alert"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_alert"],
+			TypeName: "wavefront_alert",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Alert")
 			return err
 		}
@@ -268,15 +268,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Target",
 	}:
 		if err := (&controllersalert.TargetReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Target"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_alert_target"],
-			TypeName:         "wavefront_alert_target",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Target"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_alert_target"],
+			TypeName: "wavefront_alert_target",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Target")
 			return err
 		}
@@ -286,15 +285,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationAppDynamics",
 	}:
 		if err := (&controllerscloud.IntegrationAppDynamicsReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAppDynamics"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_app_dynamics"],
-			TypeName:         "wavefront_cloud_integration_app_dynamics",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationAppDynamics"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_app_dynamics"],
+			TypeName: "wavefront_cloud_integration_app_dynamics",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationAppDynamics")
 			return err
 		}
@@ -304,15 +302,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationAwsExternalID",
 	}:
 		if err := (&controllerscloud.IntegrationAwsExternalIDReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAwsExternalID"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_aws_external_id"],
-			TypeName:         "wavefront_cloud_integration_aws_external_id",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationAwsExternalID"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_aws_external_id"],
+			TypeName: "wavefront_cloud_integration_aws_external_id",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationAwsExternalID")
 			return err
 		}
@@ -322,15 +319,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationAzure",
 	}:
 		if err := (&controllerscloud.IntegrationAzureReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAzure"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_azure"],
-			TypeName:         "wavefront_cloud_integration_azure",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationAzure"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_azure"],
+			TypeName: "wavefront_cloud_integration_azure",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationAzure")
 			return err
 		}
@@ -340,15 +336,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationAzureActivityLog",
 	}:
 		if err := (&controllerscloud.IntegrationAzureActivityLogReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationAzureActivityLog"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_azure_activity_log"],
-			TypeName:         "wavefront_cloud_integration_azure_activity_log",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationAzureActivityLog"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_azure_activity_log"],
+			TypeName: "wavefront_cloud_integration_azure_activity_log",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationAzureActivityLog")
 			return err
 		}
@@ -358,15 +353,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationCloudtrail",
 	}:
 		if err := (&controllerscloud.IntegrationCloudtrailReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationCloudtrail"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_cloudtrail"],
-			TypeName:         "wavefront_cloud_integration_cloudtrail",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationCloudtrail"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_cloudtrail"],
+			TypeName: "wavefront_cloud_integration_cloudtrail",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationCloudtrail")
 			return err
 		}
@@ -376,15 +370,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationCloudwatch",
 	}:
 		if err := (&controllerscloud.IntegrationCloudwatchReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationCloudwatch"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_cloudwatch"],
-			TypeName:         "wavefront_cloud_integration_cloudwatch",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationCloudwatch"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_cloudwatch"],
+			TypeName: "wavefront_cloud_integration_cloudwatch",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationCloudwatch")
 			return err
 		}
@@ -394,15 +387,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationEc2",
 	}:
 		if err := (&controllerscloud.IntegrationEc2Reconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationEc2"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_ec2"],
-			TypeName:         "wavefront_cloud_integration_ec2",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationEc2"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_ec2"],
+			TypeName: "wavefront_cloud_integration_ec2",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationEc2")
 			return err
 		}
@@ -412,15 +404,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationGcp",
 	}:
 		if err := (&controllerscloud.IntegrationGcpReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationGcp"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_gcp"],
-			TypeName:         "wavefront_cloud_integration_gcp",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationGcp"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_gcp"],
+			TypeName: "wavefront_cloud_integration_gcp",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationGcp")
 			return err
 		}
@@ -430,15 +421,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationGcpBilling",
 	}:
 		if err := (&controllerscloud.IntegrationGcpBillingReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationGcpBilling"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_gcp_billing"],
-			TypeName:         "wavefront_cloud_integration_gcp_billing",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationGcpBilling"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_gcp_billing"],
+			TypeName: "wavefront_cloud_integration_gcp_billing",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationGcpBilling")
 			return err
 		}
@@ -448,15 +438,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationNewrelic",
 	}:
 		if err := (&controllerscloud.IntegrationNewrelicReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationNewrelic"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_newrelic"],
-			TypeName:         "wavefront_cloud_integration_newrelic",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationNewrelic"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_newrelic"],
+			TypeName: "wavefront_cloud_integration_newrelic",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationNewrelic")
 			return err
 		}
@@ -466,15 +455,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "IntegrationTesla",
 	}:
 		if err := (&controllerscloud.IntegrationTeslaReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("IntegrationTesla"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_cloud_integration_tesla"],
-			TypeName:         "wavefront_cloud_integration_tesla",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("IntegrationTesla"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_cloud_integration_tesla"],
+			TypeName: "wavefront_cloud_integration_tesla",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "IntegrationTesla")
 			return err
 		}
@@ -484,15 +472,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Dashboard",
 	}:
 		if err := (&controllersdashboard.DashboardReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Dashboard"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_dashboard"],
-			TypeName:         "wavefront_dashboard",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Dashboard"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_dashboard"],
+			TypeName: "wavefront_dashboard",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Dashboard")
 			return err
 		}
@@ -502,15 +489,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Json",
 	}:
 		if err := (&controllersdashboard.JsonReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Json"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_dashboard_json"],
-			TypeName:         "wavefront_dashboard_json",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Json"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_dashboard_json"],
+			TypeName: "wavefront_dashboard_json",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Json")
 			return err
 		}
@@ -520,15 +506,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Metric",
 	}:
 		if err := (&controllersderived.MetricReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Metric"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_derived_metric"],
-			TypeName:         "wavefront_derived_metric",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Metric"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_derived_metric"],
+			TypeName: "wavefront_derived_metric",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Metric")
 			return err
 		}
@@ -538,15 +523,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Link",
 	}:
 		if err := (&controllersexternal.LinkReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Link"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_external_link"],
-			TypeName:         "wavefront_external_link",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Link"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_external_link"],
+			TypeName: "wavefront_external_link",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Link")
 			return err
 		}
@@ -556,15 +540,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Policy",
 	}:
 		if err := (&controllersingestion.PolicyReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Policy"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_ingestion_policy"],
-			TypeName:         "wavefront_ingestion_policy",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Policy"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_ingestion_policy"],
+			TypeName: "wavefront_ingestion_policy",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Policy")
 			return err
 		}
@@ -574,15 +557,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Window",
 	}:
 		if err := (&controllersmaintenance.WindowReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Window"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_maintenance_window"],
-			TypeName:         "wavefront_maintenance_window",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Window"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_maintenance_window"],
+			TypeName: "wavefront_maintenance_window",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Window")
 			return err
 		}
@@ -592,15 +574,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Role",
 	}:
 		if err := (&controllersrole.RoleReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Role"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_role"],
-			TypeName:         "wavefront_role",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Role"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_role"],
+			TypeName: "wavefront_role",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Role")
 			return err
 		}
@@ -610,15 +591,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Account",
 	}:
 		if err := (&controllersservice.AccountReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Account"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_service_account"],
-			TypeName:         "wavefront_service_account",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Account"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_service_account"],
+			TypeName: "wavefront_service_account",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Account")
 			return err
 		}
@@ -628,15 +608,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "User",
 	}:
 		if err := (&controllersuser.UserReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("User"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_user"],
-			TypeName:         "wavefront_user",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("User"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_user"],
+			TypeName: "wavefront_user",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "User")
 			return err
 		}
@@ -646,15 +625,14 @@ func SetupManager(ctx context.Context, mgr manager.Manager, gvk schema.GroupVers
 		Kind:    "Group",
 	}:
 		if err := (&controllersuser.GroupReconciler{
-			Client:           mgr.GetClient(),
-			Log:              ctrl.Log.WithName("controllers").WithName("Group"),
-			Scheme:           mgr.GetScheme(),
-			Gvk:              gvk,
-			Provider:         _provider,
-			Resource:         _provider.ResourcesMap["wavefront_user_group"],
-			TypeName:         "wavefront_user_group",
-			WatchOnlyDefault: watchOnlyDefault,
-		}).SetupWithManager(ctx, mgr, auditor); err != nil {
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Group"),
+			Scheme:   mgr.GetScheme(),
+			Gvk:      gvk,
+			Provider: _provider,
+			Resource: _provider.ResourcesMap["wavefront_user_group"],
+			TypeName: "wavefront_user_group",
+		}).SetupWithManager(ctx, mgr, auditor, restrictToNamespace); err != nil {
 			setupLog.Error(err, "unable to create controller", "controller", "Group")
 			return err
 		}
