@@ -805,7 +805,7 @@ kmodules.xyz/resource-metadata/pkg/graph
 ## explicit
 kubeform.dev/apimachinery/api/v1alpha1
 kubeform.dev/apimachinery/pkg/util
-# kubeform.dev/provider-wavefront-api v0.3.1-0.20210824200656-d8174f2eee82
+# kubeform.dev/provider-wavefront-api v0.3.1-0.20210824201701-31f6296878a0
 ## explicit
 kubeform.dev/provider-wavefront-api/api/provider
 kubeform.dev/provider-wavefront-api/apis/alert
