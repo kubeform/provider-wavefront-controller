@@ -39,194 +39,192 @@ type Data struct {
 	ResourceType string
 }
 
-var (
-	allJsonIt = map[schema.GroupVersionResource]Data{
-		{
-			Group:    "alert.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "alerts",
-		}: {
-			JsonIt:       controllers.GetJSONItr(alertv1alpha1.GetEncoder(), alertv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_alert",
-		},
-		{
-			Group:    "alert.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "targets",
-		}: {
-			JsonIt:       controllers.GetJSONItr(alertv1alpha1.GetEncoder(), alertv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_alert_target",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationappdynamics",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_app_dynamics",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationawsexternalids",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_aws_external_id",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationazures",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_azure",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationazureactivitylogs",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_azure_activity_log",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationcloudtrails",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_cloudtrail",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationcloudwatches",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_cloudwatch",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationec2s",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_ec2",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationgcps",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_gcp",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationgcpbillings",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_gcp_billing",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationnewrelics",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_newrelic",
-		},
-		{
-			Group:    "cloud.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "integrationteslas",
-		}: {
-			JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_cloud_integration_tesla",
-		},
-		{
-			Group:    "dashboard.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "dashboards",
-		}: {
-			JsonIt:       controllers.GetJSONItr(dashboardv1alpha1.GetEncoder(), dashboardv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_dashboard",
-		},
-		{
-			Group:    "dashboard.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "jsons",
-		}: {
-			JsonIt:       controllers.GetJSONItr(dashboardv1alpha1.GetEncoder(), dashboardv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_dashboard_json",
-		},
-		{
-			Group:    "derived.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "metrics",
-		}: {
-			JsonIt:       controllers.GetJSONItr(derivedv1alpha1.GetEncoder(), derivedv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_derived_metric",
-		},
-		{
-			Group:    "external.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "links",
-		}: {
-			JsonIt:       controllers.GetJSONItr(externalv1alpha1.GetEncoder(), externalv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_external_link",
-		},
-		{
-			Group:    "ingestion.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "policies",
-		}: {
-			JsonIt:       controllers.GetJSONItr(ingestionv1alpha1.GetEncoder(), ingestionv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_ingestion_policy",
-		},
-		{
-			Group:    "maintenance.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "windows",
-		}: {
-			JsonIt:       controllers.GetJSONItr(maintenancev1alpha1.GetEncoder(), maintenancev1alpha1.GetDecoder()),
-			ResourceType: "wavefront_maintenance_window",
-		},
-		{
-			Group:    "role.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "roles",
-		}: {
-			JsonIt:       controllers.GetJSONItr(rolev1alpha1.GetEncoder(), rolev1alpha1.GetDecoder()),
-			ResourceType: "wavefront_role",
-		},
-		{
-			Group:    "service.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "accounts",
-		}: {
-			JsonIt:       controllers.GetJSONItr(servicev1alpha1.GetEncoder(), servicev1alpha1.GetDecoder()),
-			ResourceType: "wavefront_service_account",
-		},
-		{
-			Group:    "user.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "users",
-		}: {
-			JsonIt:       controllers.GetJSONItr(userv1alpha1.GetEncoder(), userv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_user",
-		},
-		{
-			Group:    "user.wavefront.kubeform.com",
-			Version:  "v1alpha1",
-			Resource: "groups",
-		}: {
-			JsonIt:       controllers.GetJSONItr(userv1alpha1.GetEncoder(), userv1alpha1.GetDecoder()),
-			ResourceType: "wavefront_user_group",
-		},
-	}
-)
+var allJsonIt = map[schema.GroupVersionResource]Data{
+	{
+		Group:    "alert.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "alerts",
+	}: {
+		JsonIt:       controllers.GetJSONItr(alertv1alpha1.GetEncoder(), alertv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_alert",
+	},
+	{
+		Group:    "alert.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "targets",
+	}: {
+		JsonIt:       controllers.GetJSONItr(alertv1alpha1.GetEncoder(), alertv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_alert_target",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationappdynamics",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_app_dynamics",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationawsexternalids",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_aws_external_id",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationazures",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_azure",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationazureactivitylogs",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_azure_activity_log",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationcloudtrails",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_cloudtrail",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationcloudwatches",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_cloudwatch",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationec2s",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_ec2",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationgcps",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_gcp",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationgcpbillings",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_gcp_billing",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationnewrelics",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_newrelic",
+	},
+	{
+		Group:    "cloud.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "integrationteslas",
+	}: {
+		JsonIt:       controllers.GetJSONItr(cloudv1alpha1.GetEncoder(), cloudv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_cloud_integration_tesla",
+	},
+	{
+		Group:    "dashboard.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "dashboards",
+	}: {
+		JsonIt:       controllers.GetJSONItr(dashboardv1alpha1.GetEncoder(), dashboardv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_dashboard",
+	},
+	{
+		Group:    "dashboard.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "jsons",
+	}: {
+		JsonIt:       controllers.GetJSONItr(dashboardv1alpha1.GetEncoder(), dashboardv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_dashboard_json",
+	},
+	{
+		Group:    "derived.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "metrics",
+	}: {
+		JsonIt:       controllers.GetJSONItr(derivedv1alpha1.GetEncoder(), derivedv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_derived_metric",
+	},
+	{
+		Group:    "external.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "links",
+	}: {
+		JsonIt:       controllers.GetJSONItr(externalv1alpha1.GetEncoder(), externalv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_external_link",
+	},
+	{
+		Group:    "ingestion.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "policies",
+	}: {
+		JsonIt:       controllers.GetJSONItr(ingestionv1alpha1.GetEncoder(), ingestionv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_ingestion_policy",
+	},
+	{
+		Group:    "maintenance.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "windows",
+	}: {
+		JsonIt:       controllers.GetJSONItr(maintenancev1alpha1.GetEncoder(), maintenancev1alpha1.GetDecoder()),
+		ResourceType: "wavefront_maintenance_window",
+	},
+	{
+		Group:    "role.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "roles",
+	}: {
+		JsonIt:       controllers.GetJSONItr(rolev1alpha1.GetEncoder(), rolev1alpha1.GetDecoder()),
+		ResourceType: "wavefront_role",
+	},
+	{
+		Group:    "service.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "accounts",
+	}: {
+		JsonIt:       controllers.GetJSONItr(servicev1alpha1.GetEncoder(), servicev1alpha1.GetDecoder()),
+		ResourceType: "wavefront_service_account",
+	},
+	{
+		Group:    "user.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "users",
+	}: {
+		JsonIt:       controllers.GetJSONItr(userv1alpha1.GetEncoder(), userv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_user",
+	},
+	{
+		Group:    "user.wavefront.kubeform.com",
+		Version:  "v1alpha1",
+		Resource: "groups",
+	}: {
+		JsonIt:       controllers.GetJSONItr(userv1alpha1.GetEncoder(), userv1alpha1.GetDecoder()),
+		ResourceType: "wavefront_user_group",
+	},
+}
 
 func getJsonItAndResType(gvr schema.GroupVersionResource) Data {
 	return allJsonIt[gvr]
