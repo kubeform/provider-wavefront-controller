@@ -1256,7 +1256,7 @@ kmodules.xyz/resource-metrics/api
 ## explicit
 kubeform.dev/apimachinery/api/v1alpha1
 kubeform.dev/apimachinery/pkg/util
-# kubeform.dev/provider-wavefront-api v0.4.1-0.20220308120205-73192b298c5f
+# kubeform.dev/provider-wavefront-api v0.4.1-0.20220308121350-c054248425be
 ## explicit
 kubeform.dev/provider-wavefront-api/api/provider
 kubeform.dev/provider-wavefront-api/apis/alert
